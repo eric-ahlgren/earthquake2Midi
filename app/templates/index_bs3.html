@@ -1,0 +1,119 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+<script>
+  function geoFindMe() {
+    var output = document.getElementById("out");
+
+    if (!navigator.geolocation){
+      output.innerHTML = "<p>Geolocation is not supported by your browser</p>";
+      return;
+    }
+
+    function success(position) {
+      var latitude  = position.coords.latitude;
+      var longitude = position.coords.longitude;
+
+      document.getElementById("latitude").value = latitude;
+      document.getElementById("longitude").value = longitude;
+      console.log(latitude);
+      console.log(longitude);
+      output.innerHTML = "<p>Found!</p>";          
+    }
+
+    function error() {
+      output.innerHTML = "Unable to retrieve your location";
+    }
+
+    output.innerHTML = "<p>Locating…</p>";
+
+    navigator.geolocation.getCurrentPosition(success, error);
+  }
+</script>
+<script>
+  function addPatch() {
+    var newPatch = '{{ form.patches.append_entry()  }}';
+    console.log(newPatch);
+    patchHtml = document.createElement('li');
+    patchHtml.innerHTML = newPatch;
+    console.log(patchHtml);
+    document.getElementById("patches").appendChild(patchHtml);
+  }
+</script>
+<h1>Earthquake Data Sonification</h1>
+{% include 'flash.html' %}
+<body onload="geoFindMe()">
+<div class="well">
+ <form class="form-horizontal" action="" method="post" name="music">
+     {{form.hidden_tag()}}
+     <div class="control-group{% if form.errors.post %} error{% endif %}">
+         <label class="control-label" for="post">Enter parameters:</label>
+         <div class="controls">
+             {{ form.num_days.label }}
+             {{ form.num_days() }}
+               {% for error in form.errors.num_days %}
+                 <span class="help-inline">[{{error}}]</span><br>
+               {% endfor %}
+             {{ form.music_key.label }}
+             {{ form.music_key() }}
+               {% for error in form.errors.num_days %}
+                 <span class="help-inline">[{{error}}]</span><br>
+               {% endfor %}             
+             {{ form.min_mag.label }}
+             {{ form.min_mag() }}
+               {% for error in form.errors.num_days %}
+                 <span class="help-inline">[{{error}}]</span><br>
+               {% endfor %}             
+             {{ form.tempo.label }}
+             {{ form.tempo() }}
+                {% for error in form.errors.num_days %}
+                 <span class="help-inline">[{{error}}]</span><br>
+               {% endfor %}            
+             {{ form.base_octave.label }}
+             {{ form.base_octave() }}
+               {% for error in form.errors.num_days %}
+                 <span class="help-inline">[{{error}}]</span><br>
+               {% endfor %}             
+             {{ form.octave_range.label }}
+             {{ form.octave_range() }}
+               {% for error in form.errors.octave_range %}
+                   <span class="help-inline">[{{error}}]</span><br>
+               {% endfor %}
+             {{ form.patches.label }}
+             {{ form.patches() }}
+                <script>
+                  var patches = document.getElementById("patches");
+                  items = patches.childNodes;
+                  for (let item of items){
+                    lables = item.getElementsByTagName("label");
+                    while (lables.length > 0) {
+                      lables[0].remove();
+                    };
+                  };
+                    // if (item.childElementCount == 2) {
+                    //   item.removeChild(item.childNodes[0]);
+                    //   table = item.
+                    // };
+                </script>
+                <div class="controls">
+                 <input class="btn btn-primary" type="submit" value="Add Patch" id="patch-button" onclick="addPatch()">
+                </div>
+               {% for error in form.errors.patches %}
+                   <span class="help-inline">[{{error}}]</span><br>
+               {% endfor %}
+                <div class="controls">
+                  <input id="submit-music" name="submit-music" class="btn btn-primary btn-block" type="submit" value="Submit">
+                </div>
+             {{ form.latitude() }}
+             {{ form.longitude() }}
+         </div>
+     </div>
+     <div class="control-group">
+
+         <div id="out"></div>
+     </div>
+ </form>
+</div>
+</body>
+ {% endblock %}
